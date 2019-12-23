@@ -7,31 +7,42 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.stream.IntStream;
 import javax.swing.*;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
+    private static final int delay = 100;
+
     private int[] snakeXLength = new int[750];
+
     private int[] snakeYLength = new int[750];
-    private int lengthOfSnake = 3;
+
+    private int lengthOfSnake = 0;
 
     private boolean up = false;
+
     private boolean left = false;
+
     private boolean down = false;
+
     private boolean right = true;
+
     private boolean moving = false;
 
     private ImageIcon titleImage;
 
     private ImageIcon upmouth;
+
     private ImageIcon leftmouth;
+
     private ImageIcon downmouth;
+
     private ImageIcon rightmouth;
 
     private ImageIcon snakeimage;
 
     private Timer timer;
-    private static final int delay = 100;
 
     public Gameplay() {
 
@@ -47,6 +58,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         timer = new Timer(delay, this);
+        timer.start();
 
     }
 
@@ -54,6 +66,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     public void paint(final Graphics g) {
 
         if (!moving) {
+            lengthOfSnake = 3;
+
             snakeXLength[2] = 50;
             snakeXLength[1] = 75;
             snakeXLength[0] = 100;
@@ -68,15 +82,15 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         g.drawRect(24, 10, 851, 55);
 
         // draw the title image
-        titleImage.paintIcon(this, g, 25, 11 );
+        titleImage.paintIcon(this, g, 25, 11);
 
         // draw the border for game play
         g.setColor(Color.WHITE);
-        g.drawRect(24, 74, 851, 577 );
+        g.drawRect(24, 74, 851, 577);
 
         // draw background for game play
         g.setColor(Color.BLACK);
-        g.fillRect(25, 75, 850, 575 );
+        g.fillRect(25, 75, 850, 575);
 
         // draw snake
         for (int a = 0; a < lengthOfSnake; a++) {
@@ -94,6 +108,39 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void actionPerformed(final ActionEvent e) {
 
+        timer.start();
+        if (!moving) {
+            return;
+        }
+        // update snake body
+        IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
+            snakeXLength[r + 1] = snakeXLength[r];
+            snakeYLength[r + 1] = snakeYLength[r];
+        });
+        // update snake head
+        if (up) {
+            snakeYLength[0] -= 25;
+            if (snakeYLength[0] < 75) {
+                snakeYLength[0] = 625;
+            }
+        } else if (left) {
+            snakeXLength[0] -= 25;
+            if (snakeXLength[0] < 25) {
+                snakeXLength[0] = 850;
+            }
+        } else if (down) {
+            snakeYLength[0] += 25;
+            if (snakeYLength[0] > 625) {
+                snakeYLength[0] = 75;
+            }
+        } else if (right) {
+            snakeXLength[0] += 25;
+            if (snakeXLength[0] > 850) {
+                snakeXLength[0] = 25;
+            }
+        }
+        repaint();
+
     }
 
     @Override
@@ -103,6 +150,40 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(final KeyEvent e) {
+
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            moving = true;
+            if (!left) {
+                right = true;
+                left = false;
+                down = false;
+                up = false;
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            moving = true;
+            if (!right) {
+                left = true;
+                right = false;
+                down = false;
+                up = false;
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            moving = true;
+            if (!down) {
+                up = true;
+                down = false;
+                left = false;
+                right = false;
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            moving = true;
+            if (!up) {
+                down = true;
+                up = false;
+                left = false;
+                right = false;
+            }
+        }
 
     }
 
