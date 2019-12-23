@@ -15,6 +15,12 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private static final int delay = 100;
 
+    private final int[] foodXPos = IntStream.iterate(25, i -> i <= 850, i -> i + 25).toArray();
+
+    private final int[] foodYPos = IntStream.iterate(75, i -> i <= 625, i -> i + 25).toArray();
+
+    private final Random random = new Random();
+
     private int[] snakeXPos = new int[750];
 
     private int[] snakeYPos = new int[750];
@@ -45,17 +51,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private Timer timer;
 
-    private final int[] foodXPos = IntStream.iterate(25, i -> i <= 850, i -> i + 25).toArray();
-
-    private final int[] foodYPos = IntStream.iterate(75, i -> i <= 625, i -> i + 25).toArray();
-
     private ImageIcon foodImage;
 
-    private final Random random = new Random();
+    private int xIndex;
 
-    private int xIndex = random.nextInt(foodXPos.length);
-
-    private int yIndex = random.nextInt(foodYPos.length);
+    private int yIndex;
 
     public Gameplay() {
 
@@ -90,6 +90,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             snakeYPos[2] = 100;
             snakeYPos[1] = 100;
             snakeYPos[0] = 100;
+
+            xIndex = random.nextInt(foodXPos.length);
+            yIndex = random.nextInt(foodYPos.length);
+            while (foodInBody()) {
+                xIndex = random.nextInt(foodXPos.length);
+                yIndex = random.nextInt(foodYPos.length);
+            }
         }
 
         // fill in the background
@@ -125,12 +132,23 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
         if (foodXPos[xIndex] == snakeXPos[0] && foodYPos[yIndex] == snakeYPos[0]) {
             lengthOfSnake++;
-            xIndex = random.nextInt(foodXPos.length);
-            yIndex = random.nextInt(foodYPos.length);
+            while (foodInBody()) {
+                xIndex = random.nextInt(foodXPos.length);
+                yIndex = random.nextInt(foodYPos.length);
+            }
         }
-        foodImage.paintIcon(this,g, foodXPos[xIndex], foodYPos[yIndex]);
+        foodImage.paintIcon(this, g, foodXPos[xIndex], foodYPos[yIndex]);
 
         g.dispose();
+    }
+
+    private boolean foodInBody() {
+        for (int i = 0; i < lengthOfSnake; i++) {
+            if (foodXPos[xIndex] == snakeXPos[i] && foodYPos[yIndex] == snakeYPos[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
