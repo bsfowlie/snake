@@ -57,6 +57,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private int yIndex;
 
+    private int score = 0;
+
     public Gameplay() {
 
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -110,6 +112,12 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         // draw the title image
         titleImage.paintIcon(this, g, 25, 11);
 
+        // draw the score
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("ariel", Font.PLAIN, 14));
+        g.drawString("Scores: " + score, 780, 30);
+        g.drawString("Length: " + lengthOfSnake, 780, 50);
+
         // draw the border for game play
         g.setColor(Color.WHITE);
         g.drawRect(24, 74, 851, 577);
@@ -132,6 +140,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
         if (foodXPos[xIndex] == snakeXPos[0] && foodYPos[yIndex] == snakeYPos[0]) {
             lengthOfSnake++;
+            score++;
             while (foodInBody()) {
                 xIndex = random.nextInt(foodXPos.length);
                 yIndex = random.nextInt(foodYPos.length);
