@@ -53,11 +53,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private ImageIcon foodImage;
 
-    private int xIndex;
+    private int xIndex = random.nextInt(foodXPos.length);
 
-    private int yIndex;
+    private int yIndex = random.nextInt(foodYPos.length);
 
-    private int score = 0;
+    private int score;
 
     public Gameplay() {
 
@@ -83,7 +83,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     public void paint(final Graphics g) {
 
         if (!moving) {
+            score = 0;
             lengthOfSnake = 3;
+            right = true;
 
             snakeXPos[2] = 50;
             snakeXPos[1] = 75;
@@ -93,8 +95,6 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             snakeYPos[1] = 100;
             snakeYPos[0] = 100;
 
-            xIndex = random.nextInt(foodXPos.length);
-            yIndex = random.nextInt(foodYPos.length);
             while (foodInBody()) {
                 xIndex = random.nextInt(foodXPos.length);
                 yIndex = random.nextInt(foodYPos.length);
@@ -148,12 +148,37 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         }
         foodImage.paintIcon(this, g, foodXPos[xIndex], foodYPos[yIndex]);
 
+        if (headInBody()) {
+            up = false;
+            left = false;
+            down = false;
+            right = false;
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("ariel", Font.BOLD, 50));
+            g.drawString("Game Over!", 300, 300);
+
+            g.setFont(new Font("ariel", Font.BOLD, 20));
+            g.drawString("Space to RESTART", 350, 340);
+        }
+
         g.dispose();
     }
 
     private boolean foodInBody() {
+
         for (int i = 0; i < lengthOfSnake; i++) {
             if (foodXPos[xIndex] == snakeXPos[i] && foodYPos[yIndex] == snakeYPos[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean headInBody() {
+
+        for (int i = 1; i < lengthOfSnake; i++) {
+            if (snakeXPos[0] == snakeXPos[i] && snakeYPos[0] == snakeYPos[i]) {
                 return true;
             }
         }
@@ -167,28 +192,46 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         if (!moving) {
             return;
         }
-        // update snake body
-        IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
-            snakeXPos[r + 1] = snakeXPos[r];
-            snakeYPos[r + 1] = snakeYPos[r];
-        });
-        // update snake head
         if (up) {
+            // update snake body
+            IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
+                snakeXPos[r + 1] = snakeXPos[r];
+                snakeYPos[r + 1] = snakeYPos[r];
+            });
+            // update snake head
             snakeYPos[0] -= 25;
             if (snakeYPos[0] < 75) {
                 snakeYPos[0] = 625;
             }
         } else if (left) {
+            // update snake body
+            IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
+                snakeXPos[r + 1] = snakeXPos[r];
+                snakeYPos[r + 1] = snakeYPos[r];
+            });
+            // update snake head
             snakeXPos[0] -= 25;
             if (snakeXPos[0] < 25) {
                 snakeXPos[0] = 850;
             }
         } else if (down) {
+            // update snake body
+            IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
+                snakeXPos[r + 1] = snakeXPos[r];
+                snakeYPos[r + 1] = snakeYPos[r];
+            });
+            // update snake head
             snakeYPos[0] += 25;
             if (snakeYPos[0] > 625) {
                 snakeYPos[0] = 75;
             }
         } else if (right) {
+            // update snake body
+            IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
+                snakeXPos[r + 1] = snakeXPos[r];
+                snakeYPos[r + 1] = snakeYPos[r];
+            });
+            // update snake head
             snakeXPos[0] += 25;
             if (snakeXPos[0] > 850) {
                 snakeXPos[0] = 25;
@@ -206,32 +249,41 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyPressed(final KeyEvent e) {
 
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT && !left) {
-            moving = true;
-            right = true;
-            left = false;
-            down = false;
-            up = false;
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT && !right) {
-            moving = true;
-            left = true;
-            right = false;
-            down = false;
-            up = false;
-        } else if (e.getKeyCode() == KeyEvent.VK_UP && !down) {
-            moving = true;
-            up = true;
-            down = false;
-            left = false;
-            right = false;
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN && !up) {
-            moving = true;
-            down = true;
-            up = false;
-            left = false;
-            right = false;
-        } else if (e.getKeyCode() == KeyEvent.VK_Q) {
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
             System.exit(0);
+        }
+
+        if (headInBody()) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                moving = false;
+                repaint();
+            }
+        } else {
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT && !left) {
+                moving = true;
+                right = true;
+                left = false;
+                down = false;
+                up = false;
+            } else if (e.getKeyCode() == KeyEvent.VK_LEFT && !right) {
+                moving = true;
+                left = true;
+                right = false;
+                down = false;
+                up = false;
+            } else if (e.getKeyCode() == KeyEvent.VK_UP && !down) {
+                moving = true;
+                up = true;
+                down = false;
+                left = false;
+                right = false;
+            } else if (e.getKeyCode() == KeyEvent.VK_DOWN && !up) {
+                moving = true;
+                down = true;
+                up = false;
+                left = false;
+                right = false;
+            }
         }
 
     }
