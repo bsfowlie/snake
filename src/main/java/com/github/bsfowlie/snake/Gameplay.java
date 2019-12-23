@@ -179,6 +179,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             up = false;
             left = false;
             right = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_Q) {
+            System.exit(0);
         }
 
     }
