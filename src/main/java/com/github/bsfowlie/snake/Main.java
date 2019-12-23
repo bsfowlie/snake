@@ -13,10 +13,11 @@ public class Main {
         SwingUtilities.invokeLater(()->{
             JFrame frame = new JFrame();
 
-            frame.setBounds(10, 10, 905, 700);
+            frame.setBounds(10, 10, GamePlay.WIDTH, GamePlay.HEIGHT);
             frame.setResizable(false);
             frame.setVisible(true);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.add(new GamePlay());
         });
 
     }
