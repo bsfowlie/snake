@@ -77,6 +77,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             snakeYPos[0] = 100;
         }
 
+        // fill in the background
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(0, 0, 905, 700);
+
         // draw title image borders
         g.setColor(Color.WHITE);
         g.drawRect(24, 10, 851, 55);
