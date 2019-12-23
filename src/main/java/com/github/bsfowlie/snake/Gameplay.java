@@ -14,9 +14,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private static final int delay = 100;
 
-    private int[] snakeXLength = new int[750];
+    private int[] snakeXPos = new int[750];
 
-    private int[] snakeYLength = new int[750];
+    private int[] snakeYPos = new int[750];
 
     private int lengthOfSnake = 0;
 
@@ -32,15 +32,15 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private ImageIcon titleImage;
 
-    private ImageIcon upmouth;
+    private ImageIcon mouthUp;
 
-    private ImageIcon leftmouth;
+    private ImageIcon mouthLeft;
 
-    private ImageIcon downmouth;
+    private ImageIcon mouthDown;
 
-    private ImageIcon rightmouth;
+    private ImageIcon mouthRight;
 
-    private ImageIcon snakeimage;
+    private ImageIcon snakeBody;
 
     private Timer timer;
 
@@ -48,11 +48,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
         final ClassLoader classLoader = getClass().getClassLoader();
         titleImage = new ImageIcon(requireNonNull(classLoader.getResource("snaketitle.jpg")));
-        upmouth = new ImageIcon(requireNonNull(classLoader.getResource("upmouth.png")));
-        leftmouth = new ImageIcon(requireNonNull(classLoader.getResource("leftmouth.png")));
-        downmouth = new ImageIcon(requireNonNull(classLoader.getResource("downmouth.png")));
-        rightmouth = new ImageIcon(requireNonNull(classLoader.getResource("rightmouth.png")));
-        snakeimage = new ImageIcon(requireNonNull(classLoader.getResource("snakeimage.png")));
+        mouthUp = new ImageIcon(requireNonNull(classLoader.getResource("upmouth.png")));
+        mouthLeft = new ImageIcon(requireNonNull(classLoader.getResource("leftmouth.png")));
+        mouthDown = new ImageIcon(requireNonNull(classLoader.getResource("downmouth.png")));
+        mouthRight = new ImageIcon(requireNonNull(classLoader.getResource("rightmouth.png")));
+        snakeBody = new ImageIcon(requireNonNull(classLoader.getResource("snakeimage.png")));
 
         addKeyListener(this);
         setFocusable(true);
@@ -68,13 +68,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         if (!moving) {
             lengthOfSnake = 3;
 
-            snakeXLength[2] = 50;
-            snakeXLength[1] = 75;
-            snakeXLength[0] = 100;
+            snakeXPos[2] = 50;
+            snakeXPos[1] = 75;
+            snakeXPos[0] = 100;
 
-            snakeYLength[2] = 100;
-            snakeYLength[1] = 100;
-            snakeYLength[0] = 100;
+            snakeYPos[2] = 100;
+            snakeYPos[1] = 100;
+            snakeYPos[0] = 100;
         }
 
         // draw title image borders
@@ -95,12 +95,12 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         // draw snake
         for (int a = 0; a < lengthOfSnake; a++) {
             if (a == 0) {
-                if (up) upmouth.paintIcon(this, g, snakeXLength[a], snakeYLength[a]);
-                else if (left) leftmouth.paintIcon(this, g, snakeXLength[a], snakeYLength[a]);
-                else if (down) downmouth.paintIcon(this, g, snakeXLength[a], snakeYLength[a]);
-                else if (right) rightmouth.paintIcon(this, g, snakeXLength[a], snakeYLength[a]);
+                if (up) mouthUp.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
+                else if (left) mouthLeft.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
+                else if (down) mouthDown.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
+                else if (right) mouthRight.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
             } else {
-                snakeimage.paintIcon(this, g, snakeXLength[a], snakeYLength[a]);
+                snakeBody.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
             }
         }
     }
@@ -114,29 +114,29 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         }
         // update snake body
         IntStream.iterate(lengthOfSnake - 1, r -> r >= 0, r -> r - 1).forEachOrdered(r -> {
-            snakeXLength[r + 1] = snakeXLength[r];
-            snakeYLength[r + 1] = snakeYLength[r];
+            snakeXPos[r + 1] = snakeXPos[r];
+            snakeYPos[r + 1] = snakeYPos[r];
         });
         // update snake head
         if (up) {
-            snakeYLength[0] -= 25;
-            if (snakeYLength[0] < 75) {
-                snakeYLength[0] = 625;
+            snakeYPos[0] -= 25;
+            if (snakeYPos[0] < 75) {
+                snakeYPos[0] = 625;
             }
         } else if (left) {
-            snakeXLength[0] -= 25;
-            if (snakeXLength[0] < 25) {
-                snakeXLength[0] = 850;
+            snakeXPos[0] -= 25;
+            if (snakeXPos[0] < 25) {
+                snakeXPos[0] = 850;
             }
         } else if (down) {
-            snakeYLength[0] += 25;
-            if (snakeYLength[0] > 625) {
-                snakeYLength[0] = 75;
+            snakeYPos[0] += 25;
+            if (snakeYPos[0] > 625) {
+                snakeYPos[0] = 75;
             }
         } else if (right) {
-            snakeXLength[0] += 25;
-            if (snakeXLength[0] > 850) {
-                snakeXLength[0] = 25;
+            snakeXPos[0] += 25;
+            if (snakeXPos[0] > 850) {
+                snakeXPos[0] = 25;
             }
         }
         repaint();
