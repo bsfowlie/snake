@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
 import java.util.stream.IntStream;
 import javax.swing.*;
 
@@ -44,6 +45,18 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private Timer timer;
 
+    private final int[] foodXPos = IntStream.iterate(25, i -> i <= 850, i -> i + 25).toArray();
+
+    private final int[] foodYPos = IntStream.iterate(75, i -> i <= 625, i -> i + 25).toArray();
+
+    private ImageIcon foodImage;
+
+    private final Random random = new Random();
+
+    private int xIndex = random.nextInt(foodXPos.length);
+
+    private int yIndex = random.nextInt(foodYPos.length);
+
     public Gameplay() {
 
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -53,6 +66,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         mouthDown = new ImageIcon(requireNonNull(classLoader.getResource("downmouth.png")));
         mouthRight = new ImageIcon(requireNonNull(classLoader.getResource("rightmouth.png")));
         snakeBody = new ImageIcon(requireNonNull(classLoader.getResource("snakeimage.png")));
+
+        foodImage = new ImageIcon(requireNonNull(classLoader.getResource("enemy.png")));
 
         addKeyListener(this);
         setFocusable(true);
@@ -107,6 +122,15 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
                 snakeBody.paintIcon(this, g, snakeXPos[a], snakeYPos[a]);
             }
         }
+
+        if (foodXPos[xIndex] == snakeXPos[0] && foodYPos[yIndex] == snakeYPos[0]) {
+            lengthOfSnake++;
+            xIndex = random.nextInt(foodXPos.length);
+            yIndex = random.nextInt(foodYPos.length);
+        }
+        foodImage.paintIcon(this,g, foodXPos[xIndex], foodYPos[yIndex]);
+
+        g.dispose();
     }
 
     @Override
