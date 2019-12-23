@@ -3,9 +3,21 @@
  */
 package com.github.bsfowlie.snake;
 
+import java.awt.*;
+import javax.swing.*;
+
 public class Main {
 
     public static void main(String[] args) {
+
+        JFrame frame = new JFrame();
+
+        frame.setBounds(10, 10, 905, 700);
+        frame.setBackground(Color.DARK_GRAY);
+        frame.setResizable(false);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 
 }
