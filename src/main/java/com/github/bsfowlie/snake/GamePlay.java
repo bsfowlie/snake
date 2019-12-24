@@ -53,6 +53,8 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
     private ImageIcon foodImage;
 
+    private int score = 0;
+
     public GamePlay() {
 
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -87,6 +89,8 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
             food = shuffle(foodPos).get(0);
         }
 
+        score = 0;
+
     }
 
     private static <T> List<T> shuffle(final List<T> list) {
@@ -108,6 +112,12 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         g.drawRect(24, 10, 851, 55);
         titleImage.paintIcon(this, g, 25, 11);
 
+        // show the score
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("ariel", Font.PLAIN, 14));
+        g.drawString("Scores: " + score, 780, 30);
+        g.drawString("Length: " + (1 + snakeBody.size()), 780, 50);
+
         // draw game area
         g.drawRect(24, 74, 851, 577);
         g.setColor(Color.BLACK);
@@ -121,6 +131,7 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
         // check if food was eaten
         if (snakeHead.equals(food)) {
+            score++;
             snakeBody.addLast(snakeBody.peekLast());
             while (snakeHead.equals(food) || snakeBody.contains((food))) {
                 food = shuffle(foodPos).get(0);
