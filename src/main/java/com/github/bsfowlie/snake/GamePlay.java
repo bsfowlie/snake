@@ -3,16 +3,22 @@ package com.github.bsfowlie.snake;
 import static java.util.Objects.requireNonNull;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import javax.swing.*;
 
-public class GamePlay extends JPanel {
+public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
     public static final int WIDTH = 905;
 
     public static final int HEIGHT = 700;
+
+    private static final int DELAY = 100;
 
     private final ImageIcon titleImage;
 
@@ -26,6 +32,12 @@ public class GamePlay extends JPanel {
 
     private Direction headDir;
 
+    private Direction lastHeadDir;
+
+    private Timer timer;
+
+    private boolean moving;
+
     public GamePlay() {
 
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -37,6 +49,11 @@ public class GamePlay extends JPanel {
         bodyImage = new ImageIcon(requireNonNull(classLoader.getResource("snakeimage.png")));
 
         init();
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        addKeyListener(this);
+        timer = new Timer(DELAY, this);
+        timer.start();
     }
 
     private void init() {
@@ -46,6 +63,8 @@ public class GamePlay extends JPanel {
         snakeBody.addFirst(new Point(75, 100));
         snakeHead = new Point(100, 100);
         headDir = Direction.RIGHT;
+        lastHeadDir = Direction.RIGHT;
+        moving = false;
     }
 
     @Override
@@ -70,6 +89,75 @@ public class GamePlay extends JPanel {
 
         // draw the snake body
         snakeBody.forEach(body -> bodyImage.paintIcon(this, g, body.x, body.y));
+
+    }
+
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+        timer.start();
+        if (!moving) return;
+        switch (headDir) {
+            case UP:
+                snakeBody.removeLast();
+                snakeBody.addFirst(snakeHead.getLocation());
+                snakeHead.y -= 25;
+                if (snakeHead.y < 75) snakeHead.y = 625;
+                break;
+            case LEFT:
+                snakeBody.removeLast();
+                snakeBody.addFirst(snakeHead.getLocation());
+                snakeHead.x -= 25;
+                if (snakeHead.x < 25) snakeHead.x = 850;
+                break;
+            case DOWN:
+                snakeBody.removeLast();
+                snakeBody.addFirst(snakeHead.getLocation());
+                snakeHead.y += 25;
+                if (snakeHead.y > 625) snakeHead.y = 75;
+                break;
+            case RIGHT:
+                snakeBody.removeLast();
+                snakeBody.addFirst(snakeHead.getLocation());
+                snakeHead.x += 25;
+                if (snakeHead.x > 850) snakeHead.x = 25;
+                break;
+        }
+        lastHeadDir = headDir;
+        repaint();
+
+    }
+
+    @Override
+    public void keyTyped(final KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(final KeyEvent e) {
+
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            System.exit(0);
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_UP && lastHeadDir != Direction.DOWN) {
+            moving = true;
+            headDir = Direction.UP;
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT && lastHeadDir != Direction.RIGHT) {
+            moving = true;
+            headDir = Direction.LEFT;
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN && lastHeadDir != Direction.UP) {
+            moving = true;
+            headDir = Direction.DOWN;
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT && lastHeadDir != Direction.LEFT) {
+            moving = true;
+            headDir = Direction.RIGHT;
+        }
+
+    }
+
+    @Override
+    public void keyReleased(final KeyEvent e) {
 
     }
 
