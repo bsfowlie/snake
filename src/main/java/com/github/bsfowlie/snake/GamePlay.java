@@ -31,6 +31,14 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
     private final ImageIcon bodyImage;
 
+    private final List<Point> foodPos =
+            IntStream.iterate(25, x -> x <= 850, x -> x + 25)
+                    .mapToObj(
+                            x -> IntStream.iterate(75, y -> y <= 625, y -> y + 25)
+                                    .mapToObj(y -> new Point(x, y)))
+                    .flatMap(Function.identity())
+                    .collect(Collectors.toList());
+
     private Point snakeHead;
 
     private Direction headDir;
@@ -40,14 +48,6 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
 
     private boolean moving;
-
-    private List<Point> foodPos =
-            IntStream.iterate(25, x -> x <= 850, x -> x + 25)
-                    .mapToObj(
-                            x -> IntStream.iterate(75, y -> y <= 625, y -> y + 25)
-                                    .mapToObj(y -> new Point(x, y)))
-                    .flatMap(Function.identity())
-                    .collect(Collectors.toList());
 
     private Point food = shuffle(foodPos).get(0);
 
@@ -77,13 +77,13 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
     private void init() {
 
+        moving = false;
         snakeBody.clear();
         snakeBody.addFirst(new Point(50, 100));
         snakeBody.addFirst(new Point(75, 100));
         snakeHead = new Point(100, 100);
         headDir = Direction.RIGHT;
-        lastHeadDir = Direction.RIGHT;
-        moving = false;
+        lastHeadDir = headDir;
 
         while (snakeHead.equals(food) || snakeBody.contains((food))) {
             food = shuffle(foodPos).get(0);
@@ -124,7 +124,7 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         g.fillRect(25, 75, 850, 575);
 
         // draw the snake head
-        headImage.get(headDir).paintIcon(this, g, snakeHead.x, snakeHead.y);
+        headImage.get(lastHeadDir).paintIcon(this, g, snakeHead.x, snakeHead.y);
 
         // draw the snake body
         snakeBody.forEach(body -> bodyImage.paintIcon(this, g, body.x, body.y));
@@ -141,6 +141,21 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         // draw the food
         foodImage.paintIcon(this, g, food.x, food.y);
 
+        // check if snake collides with self
+        if (snakeBody.contains(snakeHead)) {
+            headDir = null;
+
+            g.setColor(Color.RED);
+            g.setFont(new Font("ariel", Font.BOLD, 50));
+            g.drawString("Game Over!", 300, 300);
+
+            g.setFont(new Font("ariel", Font.BOLD, 20));
+            g.drawString("Space to RESTART", 350, 340);
+        }
+
+        // cleanup
+        g.dispose();
+
     }
 
     @Override
@@ -148,33 +163,35 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
         timer.start();
         if (!moving) return;
-        switch (headDir) {
-            case UP:
-                snakeBody.removeLast();
-                snakeBody.addFirst(snakeHead.getLocation());
-                snakeHead.y -= 25;
-                if (snakeHead.y < 75) snakeHead.y = 625;
-                break;
-            case LEFT:
-                snakeBody.removeLast();
-                snakeBody.addFirst(snakeHead.getLocation());
-                snakeHead.x -= 25;
-                if (snakeHead.x < 25) snakeHead.x = 850;
-                break;
-            case DOWN:
-                snakeBody.removeLast();
-                snakeBody.addFirst(snakeHead.getLocation());
-                snakeHead.y += 25;
-                if (snakeHead.y > 625) snakeHead.y = 75;
-                break;
-            case RIGHT:
-                snakeBody.removeLast();
-                snakeBody.addFirst(snakeHead.getLocation());
-                snakeHead.x += 25;
-                if (snakeHead.x > 850) snakeHead.x = 25;
-                break;
+        if (headDir != null) {
+            switch (headDir) {
+                case UP:
+                    snakeBody.removeLast();
+                    snakeBody.addFirst(snakeHead.getLocation());
+                    snakeHead.y -= 25;
+                    if (snakeHead.y < 75) snakeHead.y = 625;
+                    break;
+                case LEFT:
+                    snakeBody.removeLast();
+                    snakeBody.addFirst(snakeHead.getLocation());
+                    snakeHead.x -= 25;
+                    if (snakeHead.x < 25) snakeHead.x = 850;
+                    break;
+                case DOWN:
+                    snakeBody.removeLast();
+                    snakeBody.addFirst(snakeHead.getLocation());
+                    snakeHead.y += 25;
+                    if (snakeHead.y > 625) snakeHead.y = 75;
+                    break;
+                case RIGHT:
+                    snakeBody.removeLast();
+                    snakeBody.addFirst(snakeHead.getLocation());
+                    snakeHead.x += 25;
+                    if (snakeHead.x > 850) snakeHead.x = 25;
+                    break;
+            }
+            lastHeadDir = headDir;
         }
-        lastHeadDir = headDir;
         repaint();
 
     }
@@ -189,6 +206,14 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
         if (e.getKeyCode() == KeyEvent.VK_Q) {
             System.exit(0);
+        }
+
+        if (headDir == null) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                init();
+                repaint();
+            }
+            return;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_UP && lastHeadDir != Direction.DOWN) {
