@@ -7,9 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.LinkedList;
+import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.swing.Timer;
 import javax.swing.*;
 
 public class GamePlay extends JPanel implements KeyListener, ActionListener {
@@ -38,6 +41,18 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
     private boolean moving;
 
+    private List<Point> foodPos =
+            IntStream.iterate(25, x -> x <= 850, x -> x + 25)
+                    .mapToObj(
+                            x -> IntStream.iterate(75, y -> y <= 625, y -> y + 25)
+                                    .mapToObj(y -> new Point(x, y)))
+                    .flatMap(Function.identity())
+                    .collect(Collectors.toList());
+
+    private Point food = shuffle(foodPos).get(0);
+
+    private ImageIcon foodImage;
+
     public GamePlay() {
 
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -47,6 +62,7 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         headImage.put(Direction.DOWN, new ImageIcon(requireNonNull(classLoader.getResource("downmouth.png"))));
         headImage.put(Direction.RIGHT, new ImageIcon(requireNonNull(classLoader.getResource("rightmouth.png"))));
         bodyImage = new ImageIcon(requireNonNull(classLoader.getResource("snakeimage.png")));
+        foodImage = new ImageIcon(requireNonNull(classLoader.getResource("enemy.png")));
 
         init();
         setFocusable(true);
@@ -54,6 +70,7 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         addKeyListener(this);
         timer = new Timer(DELAY, this);
         timer.start();
+
     }
 
     private void init() {
@@ -65,6 +82,18 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
         headDir = Direction.RIGHT;
         lastHeadDir = Direction.RIGHT;
         moving = false;
+
+        while (snakeHead.equals(food) || snakeBody.contains((food))) {
+            food = shuffle(foodPos).get(0);
+        }
+
+    }
+
+    private static <T> List<T> shuffle(final List<T> list) {
+
+        Collections.shuffle(list);
+        return list;
+
     }
 
     @Override
@@ -89,6 +118,17 @@ public class GamePlay extends JPanel implements KeyListener, ActionListener {
 
         // draw the snake body
         snakeBody.forEach(body -> bodyImage.paintIcon(this, g, body.x, body.y));
+
+        // check if food was eaten
+        if (snakeHead.equals(food)) {
+            snakeBody.addLast(snakeBody.peekLast());
+            while (snakeHead.equals(food) || snakeBody.contains((food))) {
+                food = shuffle(foodPos).get(0);
+            }
+        }
+
+        // draw the food
+        foodImage.paintIcon(this, g, food.x, food.y);
 
     }
 
